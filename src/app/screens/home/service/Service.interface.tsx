@@ -1,5 +1,9 @@
-export interface Service {
-	Icon: React.ElementType;
-	size: string;
+export interface ServiceItem {
+	id: string;
 	key: string;
+	title: string;
+	description: string;
+	iconName: string;
+	size: string;
+	order: number;
 }

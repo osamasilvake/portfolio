@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ProfileContent {
+  id                String  @id @default(cuid())
+  locale            String  @default("en")  // for multi-language support
+  intro             String
+  specialties       String
+  passion           String
+  buttonTitle       String
+  yearsExperience   String  // e.g. "2+"
+  satisfactionRate  String  // e.g. "99%"
+  satisfactionLabel String
+
+  @@unique([locale])
+}
+
+model ServiceItem {
+   id          String  @id @default(cuid())
+  key         String
+  locale      String  @default("en")
+  title       String
+  description String
+  iconName    String
+  size        String
+  order       Int     @default(0)
+
+  @@unique([key, locale])
+
+}
+
+model Skill {
+  id   String @id @default(cuid())
+  name String
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}

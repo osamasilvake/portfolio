@@ -11,7 +11,6 @@ on:
 jobs:
     lint:
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -19,29 +18,30 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 22
+                  node-version: 24
 
-            - name: Cache node_modules
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: latest
+
+            - name: Cache pnpm store
               uses: actions/cache@v4
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
                   restore-keys: |
-                      ${{ runner.os }}-yarn-cache-
+                      ${{ runner.os }}-pnpm-
 
             - name: Install Dependencies
-              run: yarn install
-
-            # - name: Run ESLint
-            #   run: yarn lint
+              run: pnpm install
 
             - name: Run Prettier Check
-              run: yarn pretty:check
+              run: pnpm pretty:check
 
     test:
-        needs: lint # Ensure linting is done before testing
+        needs: lint
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -49,156 +49,72 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 22
+                  node-version: 24
 
-            - name: Cache node_modules
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: latest
+
+            - name: Cache pnpm store
               uses: actions/cache@v4
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+                  path: ~/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
                   restore-keys: |
-                      ${{ runner.os }}-yarn-cache-
+                      ${{ runner.os }}-pnpm-
 
             - name: Install Dependencies
-              run: yarn install
+              run: pnpm install
+
+            - name: Generate Prisma Client
+              run: pnpm prisma generate
+              env:
+                  DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
             - name: Run Tests
-              run: yarn test
+              run: pnpm test
 
-    deploy:
-        needs: test # Ensure testing is done before deployment
+    build-and-push:
+        needs: test
         runs-on: ubuntu-latest
-
+        if: github.ref == 'refs/heads/master'
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
               with:
-                  node-version: 22
+                  username: ${{ secrets.DOCKERHUB_USERNAME }}
+                  password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-            - name: Cache node_modules
-              uses: actions/cache@v4
+            - name: Build and Push Docker Image
+              uses: docker/build-push-action@v6
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-yarn-cache-
+                  context: .
+                  push: true
+                  tags: |
+                      ${{ secrets.DOCKERHUB_USERNAME }}/portfolio:latest
+                      ${{ secrets.DOCKERHUB_USERNAME }}/portfolio:${{ github.sha }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
 
-            - name: Install Dependencies
-              run: yarn install
+    deploy:
+        needs: build-and-push
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/master'
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
 
-            - name: Build the App
-              run: yarn build
+            - name: Install Railway CLI
+              run: npm install -g @railway/cli
 
-            - name: Deploy to Vercel
-              uses: amondnet/vercel-action@v25
-              with:
-                  vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
-                  vercel-args: '--prod'
-                  vercel-org-id: ${{ secrets.VERCEL_ORG_ID }} # Required, your team ID
-                  vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }} # Required
-
-# name: Continuous Integration & Deployment
-
-# on:
-#     push:
-#         branches:
-#             - master
-#     pull_request:
-#         branches:
-#             - master
-
-# jobs:
-#     lint:
-#         runs-on: ubuntu-latest
-
-#         steps:
-#             - name: Checkout Code
-#               uses: actions/checkout@v4
-
-#             - name: Setup Node.js
-#               uses: actions/setup-node@v4
-#               with:
-#                   node-version: 22
-
-#             - name: Cache node_modules
-#               uses: actions/cache@v4
-#               with:
-#                   path: node_modules
-#                   key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
-#                   restore-keys: |
-#                       ${{ runner.os }}-yarn-cache-
-
-#             - name: Install Dependencies
-#               run: yarn install
-
-#             - name: Upload node_modules Artifact
-#               uses: actions/upload-artifact@v4
-#               with:
-#                   name: node_modules
-#                   path: node_modules
-
-#             - name: Run Prettier Check
-#               run: yarn pretty:check
-
-#     test:
-#         needs: lint # Ensure linting is done before testing
-#         runs-on: ubuntu-latest
-
-#         steps:
-#             - name: Checkout Code
-#               uses: actions/checkout@v4
-
-#             - name: Setup Node.js
-#               uses: actions/setup-node@v4
-#               with:
-#                   node-version: 22
-
-#             - name: Download node_modules Artifact
-#               uses: actions/download-artifact@v4
-#               with:
-#                   name: node_modules
-#                   path: node_modules
-
-#             # Install missing dependencies (if any) after downloading node_modules
-#             - name: Install Missing Dependencies
-#               run: yarn install --frozen-lockfile
-
-#             - name: Run Tests
-#               run: yarn test
-
-#     deploy:
-#         needs: test # Ensure testing is done before deployment
-#         runs-on: ubuntu-latest
-
-#         steps:
-#             - name: Checkout Code
-#               uses: actions/checkout@v4
-
-#             - name: Setup Node.js
-#               uses: actions/setup-node@v4
-#               with:
-#                   node-version: 22
-
-#             - name: Download node_modules Artifact
-#               uses: actions/download-artifact@v4
-#               with:
-#                   name: node_modules
-#                   path: node_modules
-
-#             # Ensure all dependencies are resolved before building
-#             - name: Install Missing Dependencies
-#               run: yarn install --frozen-lockfile
-
-#             - name: Build the App
-#               run: yarn build
-
-#             - name: Deploy to Vercel
-#               uses: amondnet/vercel-action@v25
-#               with:
-#                   vercel-token: ${{ secrets.VERCEL_TOKEN }}
-#                   vercel-args: '--prod'
-#                   vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-#                   vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+            - name: Deploy to Railway
+              run: railway up --service portfolio
+              env:
+                  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

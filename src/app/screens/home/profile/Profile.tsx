@@ -1,17 +1,17 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-
 import Button from '@/components/common/button/Button';
 import { ButtonVariantEnum } from '@/components/common/button/Button.enum';
+import { ProfileContent } from '@/generated/prisma';
 
 import { ProfileType } from './Profile.enum';
 
-const Profile = () => {
-	const t = useTranslations('Profile');
+interface ProfileProps {
+	content: ProfileContent;
+}
 
-	const emailAddress = ProfileType.EMAIL;
-	const mailtoLink = `mailto:${emailAddress}`;
+const Profile = ({ content }: ProfileProps) => {
+	const mailtoLink = `mailto:${ProfileType.EMAIL}`;
 
 	return (
 		<div className="w-full lg:w-72">
@@ -20,10 +20,10 @@ const Profile = () => {
 					Profile Introduction
 				</h2>
 				<p className="mb-3 dark:text-108 text-justify">
-					{t('description.intro')}
-					<strong className="dark:text-108">{t('description.specialties')}</strong>
+					{content.intro}
+					<strong className="dark:text-108">{content.specialties}</strong>
 				</p>
-				<p className="dark:text-108 text-justify">{t('description.passion')}</p>
+				<p className="dark:text-108 text-justify">{content.passion}</p>
 			</div>
 
 			<div className="mt-12 mb-12">
@@ -32,18 +32,18 @@ const Profile = () => {
 					isDisabled={false}
 					variant={ButtonVariantEnum.OUTLINED_IN_DEFAULT}
 					onClickHandler={() => (window.location.href = mailtoLink)}>
-					{t('button.title')}
+					{content.buttonTitle}
 				</Button>
 			</div>
 
 			<div className="flex gap-5" aria-label="profile-statistics">
 				<div>
-					<h2 className="font-bold text-xl dark:text-108 w-28">{t('statistics.years')}</h2>
-					<p className="dark:text-108 pt-1 text-sm w-28">{t('statistics.experience')}</p>
+					<h2 className="font-bold text-xl dark:text-108 w-28">{content.yearsExperience}</h2>
+					<p className="dark:text-108 pt-1 text-sm w-28">{content.satisfactionLabel}</p>
 				</div>
 				<div>
-					<h2 className="font-bold text-xl dark:text-108">{t('statistics.satisfactionRate')}</h2>
-					<p className="dark:text-108 pt-1 text-sm">{t('statistics.satisfaction')}</p>
+					<h2 className="font-bold text-xl dark:text-108">{content.satisfactionRate}</h2>
+					<p className="dark:text-108 pt-1 text-sm">{content.satisfactionLabel}</p>
 				</div>
 			</div>
 		</div>

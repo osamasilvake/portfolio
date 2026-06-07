@@ -3,7 +3,6 @@ import './globals.scss';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
 import React from 'react';
 
 import BackToTop from '@/components/common/scroll-top/BackToTop';
@@ -22,27 +21,26 @@ export const metadata: Metadata = {
 
 const LocalLayout = async ({ children, params }: LocalProps) => {
 	const { locale } = await params;
-	// Ensure that the incoming `locale` is valid
+
 	if (!routing.locales.includes(locale as LanguageType)) {
 		notFound();
 	}
 
-	const messages = await getMessages();
-
 	return (
 		<html lang={locale} suppressHydrationWarning={true}>
 			<body suppressHydrationWarning={true}>
-				<NextIntlClientProvider messages={messages}>
-					<ThemeProvider enableSystem defaultTheme="system" attribute="class">
+				<ThemeProvider enableSystem defaultTheme="system" attribute="class">
+					<NextIntlClientProvider>
+						{' '}
+						{/* 👈 no props needed in v4 */}
 						<div className="max-w-201 mx-auto px-4 sm:px-7">
 							<Header />
 							{children}
-
 							<BackToTop />
 						</div>
 						<Footer />
-					</ThemeProvider>
-				</NextIntlClientProvider>
+					</NextIntlClientProvider>
+				</ThemeProvider>
 			</body>
 		</html>
 	);

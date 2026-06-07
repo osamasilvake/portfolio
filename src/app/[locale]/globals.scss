@@ -17,7 +17,7 @@
 @layer base {
 	body {
 		@apply dark:bg-[#0a0a0a] 
-		  bg-[#edf6f9];
+		  bg-[#edf6f9] transition-colors duration-300;
 	}
 }
 
