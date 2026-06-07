@@ -6,7 +6,8 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const nextConfig: NextConfig = {
 	sassOptions: {
 		silenceDeprecations: ['legacy-js-api']
-	}
+	},
+	output: 'standalone'
 };
 
 const withNextIntl = createNextIntlPlugin();
