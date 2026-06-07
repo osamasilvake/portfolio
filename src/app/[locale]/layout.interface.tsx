@@ -1,6 +1,4 @@
 export interface LocalProps {
 	children: React.ReactNode;
-	params: {
-		locale: string;
-	};
+	params: Promise<{ locale: string }>;
 }
