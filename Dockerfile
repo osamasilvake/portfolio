@@ -16,6 +16,7 @@ FROM node:24.15.0-slim AS builder
 WORKDIR /app
 
 RUN npm install -g pnpm
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
