@@ -2,7 +2,7 @@
 
 import Button from '@/components/common/button/Button';
 import { ButtonVariantEnum } from '@/components/common/button/Button.enum';
-import { ProfileContent } from '@/generated/prisma';
+import { ProfileContent } from '@/generated/prisma/client';
 
 import { ProfileType } from './Profile.enum';
 
