@@ -1,6 +1,9 @@
 // app/users/page.tsx
 import { prisma } from '@/lib/prisma'; // Adjust this path if your lib folder is located elsewhere
 
+// Force dynamic rendering - don't pre-render at build time
+export const dynamic = 'force-dynamic';
+
 // Next.js 15 will run this entirely on the server
 export default async function usersPage() {
 	// 1. Fetch data directly from PostgreSQL via Prisma
