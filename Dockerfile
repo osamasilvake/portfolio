@@ -1,61 +1,60 @@
-# ─────────────────────────────
-# 1. Install deps
-# ─────────────────────────────
-FROM node:20-slim AS deps
-
+# ------------------------------------------------------------
+# Stage 1: Install dependencies
+# ------------------------------------------------------------
+FROM node:24.15.0-slim AS deps
 WORKDIR /app
 
-RUN corepack enable
-
-# Prisma + openssl requirement
-RUN apt-get update && apt-get install -y openssl
+RUN npm install -g pnpm
 
 COPY package.json pnpm-lock.yaml ./
-COPY prisma ./prisma
+RUN pnpm install --frozen-lockfile --ignore-scripts && pnpm approve-builds --yes || true
 
-RUN pnpm install --frozen-lockfile
-
-RUN pnpx prisma generate
-
-
-# ─────────────────────────────
-# 2. Build app
-# ─────────────────────────────
-FROM node:20-slim AS builder
-
+# ------------------------------------------------------------
+# Stage 2: Build the app
+# ------------------------------------------------------------
+FROM node:24.15.0-slim AS builder
 WORKDIR /app
 
-RUN corepack enable
+RUN npm install -g pnpm
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN pnpm prisma generate
 RUN pnpm build
 
-
-# ─────────────────────────────
-# 3. Production runtime
-# ─────────────────────────────
-FROM node:20-slim AS runner
-
+# ------------------------------------------------------------
+# Stage 3: Production runner
+# ------------------------------------------------------------
+FROM node:24.15.0-slim AS runner
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y openssl
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs -s /bin/sh -m nodejs
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
 
-RUN corepack enable
-
-# create user
-RUN useradd -m nextjs
-USER nextjs
-
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+COPY docker/start.sh ./docker/start.sh
+RUN chmod +x ./docker/start.sh
+
+RUN chown -R nodejs:nodejs /app
+USER nodejs
 
 EXPOSE 3000
-CMD ["sh", "./docker/start.sh"]
+CMD ["./docker/start.sh"]
