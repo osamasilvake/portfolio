@@ -1,69 +1,61 @@
-# ─── Stage 1: Dependencies ───────────────────────────────────────────────────
-FROM node:20-alpine AS deps
-
-RUN apk add --no-cache libc6-compat openssl
-
-# Enable pnpm via corepack
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# ─────────────────────────────
+# 1. Install deps
+# ─────────────────────────────
+FROM node:20-slim AS deps
 
 WORKDIR /app
 
-# Copy lockfile and manifests
+RUN corepack enable
+
+# Prisma + openssl requirement
+RUN apt-get update && apt-get install -y openssl
+
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
 
-# Install all dependencies (including dev, needed for prisma generate)
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
-# Generate Prisma client
 RUN pnpx prisma generate
 
 
-# ─── Stage 2: Builder ────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
-
-RUN apk add --no-cache libc6-compat openssl
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# ─────────────────────────────
+# 2. Build app
+# ─────────────────────────────
+FROM node:20-slim AS builder
 
 WORKDIR /app
+
+RUN corepack enable
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the Next.js app
 RUN pnpm build
 
 
-# ─── Stage 3: Runner (production image) ──────────────────────────────────────
-FROM node:20-alpine AS runner
-
-RUN apk add --no-cache openssl
+# ─────────────────────────────
+# 3. Production runtime
+# ─────────────────────────────
+FROM node:20-slim AS runner
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y openssl
+
 ENV NODE_ENV=production
-# Uncomment to disable Next.js telemetry
-# ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-# Create a non-root user for security
-RUN addgroup --system --gid 1001 nodejs \
- && adduser  --system --uid 1001 nextjs
+RUN corepack enable
 
-# Copy only what's needed to run
-COPY --from=builder /app/public        ./public
-COPY --from=builder /app/prisma        ./prisma
-COPY --from=builder /app/node_modules  ./node_modules
-COPY --from=builder /app/package.json  ./package.json
-
-# Copy Next.js standalone output
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static     ./.next/static
-
+# create user
+RUN useradd -m nextjs
 USER nextjs
 
-EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-# Run Prisma migrations then start the app
+EXPOSE 3000
 CMD ["sh", "./docker/start.sh"]
