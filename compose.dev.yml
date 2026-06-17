@@ -35,7 +35,6 @@ services:
             - .env
         environment:
             DATABASE_URL: postgresql://postgres:osama007@postgres:5432/portfolio_db
-            SEED_DB: 'true'
         command: sh docker/dev-entry.sh
         restart: unless-stopped
 

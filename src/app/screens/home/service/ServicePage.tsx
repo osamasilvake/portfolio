@@ -1,6 +1,7 @@
 import { getServiceItems } from '@/lib/service';
 
 import Service from './Service';
+export const dynamic = 'force-dynamic';
 
 const ServicePage = async ({ locale }: { locale: string }) => {
 	const services = await getServiceItems(locale);
