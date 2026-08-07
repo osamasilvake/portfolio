@@ -9,7 +9,7 @@ export const skillList: TagsData[] = [
 	{
 		id: 1,
 		title: 'Frameworks',
-		items: ['React', 'Next', 'Vue 3']
+		items: ['React', 'Tan-stack-start', 'Next.js', 'Vue 3']
 	},
 	{
 		id: 2,

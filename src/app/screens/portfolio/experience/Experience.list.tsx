@@ -8,9 +8,9 @@ import { ExperienceItem } from './Experience.interface';
 export const ExperienceList: ExperienceItem[] = [
 	{
 		id: ExperienceListType.Current,
-		title: 'Frontend Developer',
-		description: 'Personal AI, February 2024',
-		startDate: dayjs('2024-02-01'),
+		title: 'Full-stack Developer',
+		description: 'Precise Tech, February 2025',
+		startDate: dayjs('2025-02-01'),
 		endDate: null, // null indicates current date
 		content: '9 Months',
 		current: 'Current',
@@ -20,7 +20,7 @@ export const ExperienceList: ExperienceItem[] = [
 		id: 'Previous',
 		title: 'Frontend Developer',
 		description: 'All Right Tech, August 2022 - January 2023',
-		startDate: dayjs('2022-02-01'),
+		startDate: dayjs('2022-08-01'),
 		endDate: dayjs('2023-01-31'),
 		content: '6 Months',
 		image: typescript

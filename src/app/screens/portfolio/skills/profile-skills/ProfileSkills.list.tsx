@@ -9,6 +9,7 @@ import npm from '@/assets/svg/portfolio/expertise/npm.svg';
 import react from '@/assets/svg/portfolio/expertise/react.svg';
 import scss from '@/assets/svg/portfolio/expertise/sass.svg';
 import tailwind from '@/assets/svg/portfolio/expertise/tailwind-css.svg';
+import tanstack from '@/assets/svg/portfolio/expertise/tanstack-stacked-black.svg';
 import typescript from '@/assets/svg/portfolio/expertise/typescript.svg';
 import vscode from '@/assets/svg/portfolio/expertise/vscode.svg';
 import vue from '@/assets/svg/portfolio/expertise/vue.svg';
@@ -36,6 +37,10 @@ export const profileSkillsList: ProfileSkills[] = [
 	{
 		image: vue,
 		name: 'Vue js'
+	},
+	{
+		image: tanstack,
+		name: 'Tan-stack-start'
 	},
 	{
 		image: node,

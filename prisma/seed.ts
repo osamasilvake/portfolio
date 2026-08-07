@@ -8,7 +8,7 @@ const prisma = new PrismaClient({ adapter });
 const profileDataEn = {
 	locale: 'en',
 	intro: 'I am a self-taught front end developer from Pakistan,',
-	specialties: 'specializing in React.js, Next.js, Vue.js, Typescript',
+	specialties: 'specializing in React.js, Next.js,Tan-stack-start,Vue.js, and Typescript',
 	passion: 'I am passionate about building cool websites and I love sharing the things I learn with my audience.',
 	buttonTitle: 'Contact Me',
 	yearsExperience: '2 Years',
@@ -19,7 +19,7 @@ const profileDataEn = {
 const profileDataDe = {
 	locale: 'de',
 	intro: 'Ich bin ein selbstgelernter Front-End-Entwickler aus Pakistan,',
-	specialties: 'spezialisiert auf React.js, Next.js, Vue.js, Typescript',
+	specialties: 'spezialisiert auf React.js, Next.js, Tan-stack-start,Vue.js, Typescript',
 	passion: 'Ich bin leidenschaftlich daran interessiert, coole Websites zu bauen und mein Wissen zu teilen.',
 	buttonTitle: 'Kontakt',
 	yearsExperience: '2 Jahre',
