@@ -1,2 +1,2 @@
-yarn pretty:check
-yarn lint
+pnpm pretty:check
+pnpm lint
