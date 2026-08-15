@@ -11,6 +11,7 @@ on:
 jobs:
     lint:
         runs-on: ubuntu-latest
+
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -22,19 +23,17 @@ jobs:
 
             - name: Install pnpm
               uses: pnpm/action-setup@v4
-              with:
-                  version: latest
 
             - name: Cache pnpm store
               uses: actions/cache@v4
               with:
-                  path: ~/.pnpm-store
+                  path: ~/.local/share/pnpm/store
                   key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
                   restore-keys: |
                       ${{ runner.os }}-pnpm-
 
             - name: Install Dependencies
-              run: pnpm install
+              run: pnpm install --frozen-lockfile
 
             - name: Run Prettier Check
               run: pnpm pretty:check
@@ -42,6 +41,7 @@ jobs:
     test:
         needs: lint
         runs-on: ubuntu-latest
+
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -53,19 +53,17 @@ jobs:
 
             - name: Install pnpm
               uses: pnpm/action-setup@v4
-              with:
-                  version: latest
 
             - name: Cache pnpm store
               uses: actions/cache@v4
               with:
-                  path: ~/.pnpm-store
+                  path: ~/.local/share/pnpm/store
                   key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
                   restore-keys: |
                       ${{ runner.os }}-pnpm-
 
             - name: Install Dependencies
-              run: pnpm install
+              run: pnpm install --frozen-lockfile
 
             - name: Generate Prisma Client
               run: pnpm prisma generate
@@ -79,6 +77,7 @@ jobs:
         needs: test
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/master'
+
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -103,18 +102,18 @@ jobs:
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
-    # deploy:
-    #     needs: build-and-push
-    #     runs-on: ubuntu-latest
-    #     if: github.ref == 'refs/heads/master'
-    #     steps:
-    #         - name: Checkout Code
-    #           uses: actions/checkout@v4
-
-    #         - name: Install Railway CLI
-    #           run: npm install -g @railway/cli
-
-    #         - name: Deploy to Railway
-    #           run: railway up --service portfolio
-    #           env:
-    #               RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        # deploy:
+        #   needs: build-and-push
+        #   runs-on: ubuntu-latest
+        #   if: github.ref == 'refs/heads/master'
+        #   steps:
+        #     - name: Checkout Code
+        #       uses: actions/checkout@v4
+        #
+        #     - name: Install Railway CLI
+        #       run: npm install -g @railway/cli
+        #
+        #     - name: Deploy to Railway
+        #       run: railway up --service portfolio
+        #       env:
+        #         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
