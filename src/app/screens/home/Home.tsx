@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { getLocale } from 'next-intl/server';
 
 import ProfilePage from '@/app/screens/home/profile/ProfilePage';
-import osama from '@/assets/images/osamiainew.png';
+import osama from '@/assets/images/osami.jpeg';
 
 import ServicePage from './service/ServicePage';
 
@@ -17,7 +17,7 @@ const Home = async () => {
 				<ServicePage locale={locale} />
 
 				<div className="pt-10 pb-5 lg:pt-0">
-					<Image src={osama} alt="Muhammad usama" className="w-80 h-auto animate-fade-in" priority />
+					<Image src={osama} alt="Muhammad usama" className="w-96 h-auto animate-fade-in" priority />
 				</div>
 
 				<ProfilePage locale={locale} />
