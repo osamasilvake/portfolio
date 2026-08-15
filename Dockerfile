@@ -4,7 +4,7 @@
 FROM node:24.15.0-slim AS deps
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.5.0 --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 ENV HUSKY=0
@@ -16,7 +16,7 @@ RUN pnpm install --frozen-lockfile
 FROM node:24.15.0-slim AS builder
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.5.0 --activate
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -34,7 +34,7 @@ WORKDIR /app
 # Required by Prisma
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.5.0 --activate
 
 # Non-root user
 RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs -s /bin/sh -m nodejs
