@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY package.json pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml ./
 ENV HUSKY=0
 RUN pnpm install --frozen-lockfile
 
@@ -54,7 +54,7 @@ COPY package.json pnpm-lock.yaml ./
 # Install prod deps — since "prisma" (the CLI) now lives in
 # dependencies (not devDependencies), this correctly pulls it in
 # alongside everything else needed for `prisma migrate deploy`.
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm config set ignore-scripts false && pnpm install --frozen-lockfile
 
 # Startup script
 COPY docker/start-prod.sh ./docker/start-prod.sh
