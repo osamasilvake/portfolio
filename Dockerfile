@@ -54,7 +54,7 @@ COPY package.json pnpm-lock.yaml ./
 # Install prod deps — since "prisma" (the CLI) now lives in
 # dependencies (not devDependencies), this correctly pulls it in
 # alongside everything else needed for `prisma migrate deploy`.
-RUN pnpm config set ignore-scripts false && pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --unsafe-perm
 
 # Startup script
 COPY docker/start-prod.sh ./docker/start-prod.sh
