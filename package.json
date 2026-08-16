@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
-		"postinstall": "node -e \"const fs = require('fs'); if (fs.existsSync('prisma/schema.prisma')) { require('child_process').execSync('prisma generate', { stdio: 'inherit' }); }\"",
+		"postinstall": "prisma generate",
 		"start": "node .next/standalone/server.js",
 		"start:prod": "prisma migrate deploy && node .next/standalone/server.js",
 		"docker:dev:up": "docker compose --env-file .env -f docker/compose.dev.yml --project-directory . up -d --build",
